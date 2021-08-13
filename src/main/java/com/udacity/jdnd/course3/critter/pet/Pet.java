@@ -5,6 +5,9 @@ import java.time.LocalDate;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.ManyToOne;
+
+import com.udacity.jdnd.course3.critter.user.Customer;
 
 import lombok.Data;
 
@@ -15,7 +18,8 @@ public @Data class Pet {
     private long id;
     private PetType type;
     private String name;
-    private long ownerId;
+    @ManyToOne
+    private Customer owner;
     private LocalDate birthDate;
     private String notes;
 }

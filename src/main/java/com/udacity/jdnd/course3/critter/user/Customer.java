@@ -5,6 +5,9 @@ import java.util.List;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.OneToMany;
+
+import com.udacity.jdnd.course3.critter.pet.Pet;
 
 import lombok.Data;
 
@@ -16,5 +19,6 @@ public @Data class Customer {
     private String name;
     private String phoneNumber;
     private String notes;
-    private List<Long> petIds;
+    @OneToMany
+    private List<Pet> pets;
 }
