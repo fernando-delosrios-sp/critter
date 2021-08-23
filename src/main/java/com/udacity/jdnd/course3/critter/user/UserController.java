@@ -17,7 +17,7 @@ import java.util.Set;
 public class UserController {
 
     @PostMapping("/customer")
-    public CustomerDTO saveCustomer(@RequestBody CustomerDTO customerDTO){
+    public CustomerDTO saveCustomer(@RequestBody Customer customer){
         throw new UnsupportedOperationException();
     }
 

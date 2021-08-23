@@ -12,7 +12,7 @@ import java.util.List;
 public class PetController {
 
     @PostMapping
-    public PetDTO savePet(@RequestBody PetDTO petDTO) {
+    public Pet savePet(@RequestBody Pet pet) {
         throw new UnsupportedOperationException();
     }
 

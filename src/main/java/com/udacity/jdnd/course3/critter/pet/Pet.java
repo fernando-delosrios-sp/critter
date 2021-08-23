@@ -7,7 +7,9 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 
+import com.fasterxml.jackson.annotation.JsonView;
 import com.udacity.jdnd.course3.critter.user.Customer;
+import com.udacity.jdnd.course3.critter.view.Views;
 
 import lombok.Data;
 
@@ -15,11 +17,26 @@ import lombok.Data;
 public @Data class Pet {
     @Id
     @GeneratedValue
+    @JsonView(Views.Public.class)
     private long id;
+
+    @JsonView(Views.Public.class)
     private PetType type;
+
+    @JsonView(Views.Public.class)
     private String name;
+
     @ManyToOne
     private Customer owner;
+
+    @JsonView(Views.Public.class)
+    public long getOwnerId() {
+        return this.getOwner().getId();
+    }
+
+    @JsonView(Views.Public.class)
     private LocalDate birthDate;
+
+    @JsonView(Views.Public.class)
     private String notes;
 }
