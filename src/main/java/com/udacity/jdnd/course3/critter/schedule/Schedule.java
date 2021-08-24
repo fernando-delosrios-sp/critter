@@ -21,14 +21,20 @@ import com.udacity.jdnd.course3.critter.user.EmployeeSkill;
 import com.udacity.jdnd.course3.critter.view.Views;
 
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.RequiredArgsConstructor;
 
 @Entity
 @RequiredArgsConstructor
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public @Data class Schedule {
     @Id
     @GeneratedValue
-    private static long id;
+    private long id;
+
+    public Schedule(long id) {
+      this.id = id;
+    }
 
     @ManyToMany
     @JoinTable(
@@ -36,6 +42,7 @@ public @Data class Schedule {
       joinColumns = { @JoinColumn(name = "schedule_id")},
       inverseJoinColumns = { @JoinColumn(name = "employee_id")}
     )
+    @EqualsAndHashCode.Include
     private Set<Employee> employees;
 
     @JsonView(Views.Public.class)
@@ -49,6 +56,7 @@ public @Data class Schedule {
       joinColumns = { @JoinColumn(name = "schedule_id")},
       inverseJoinColumns = { @JoinColumn(name = "pet_id")}
     )
+    @EqualsAndHashCode.Include
     private Set<Pet> pets;
 
     @JsonView(Views.Public.class)
@@ -57,10 +65,12 @@ public @Data class Schedule {
     }
 
     @JsonView(Views.Public.class)
+    @EqualsAndHashCode.Include
     private LocalDate date;
 
     @ElementCollection
     @Column(name = "activity")
     @JsonView(Views.Public.class)
+    @EqualsAndHashCode.Include
     private Set<EmployeeSkill> activities;
 }

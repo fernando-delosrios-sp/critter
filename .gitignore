@@ -4,4 +4,4 @@ apache-activemq-5.15.9-bin.tar.gz
 
 ### VS code ###
 .vscode/
-target/
+target

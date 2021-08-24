@@ -13,8 +13,10 @@ import com.fasterxml.jackson.annotation.JsonView;
 import com.udacity.jdnd.course3.critter.view.Views;
 
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 @Entity
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public @Data class Employee {
     @Id
     @GeneratedValue
@@ -22,11 +24,13 @@ public @Data class Employee {
     private long id;
 
     @JsonView(Views.Public.class)
+    @EqualsAndHashCode.Include
     private String name;
 
     @ElementCollection
     @Column(name = "skill")
     @JsonView(Views.Public.class)
+    @EqualsAndHashCode.Include
     private Set<EmployeeSkill> skills;
 
     @ElementCollection
