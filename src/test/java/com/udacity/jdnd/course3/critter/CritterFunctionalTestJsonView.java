@@ -1,27 +1,30 @@
 package com.udacity.jdnd.course3.critter;
 
-import com.google.common.collect.Lists;
+import java.time.DayOfWeek;
+import java.time.LocalDate;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
+
 import com.google.common.collect.Sets;
 import com.udacity.jdnd.course3.critter.pet.Pet;
 import com.udacity.jdnd.course3.critter.pet.PetController;
 import com.udacity.jdnd.course3.critter.pet.PetType;
-import com.udacity.jdnd.course3.critter.schedule.ScheduleController;
 import com.udacity.jdnd.course3.critter.schedule.Schedule;
-import com.udacity.jdnd.course3.critter.user.*;
+import com.udacity.jdnd.course3.critter.schedule.ScheduleController;
+import com.udacity.jdnd.course3.critter.user.Customer;
+import com.udacity.jdnd.course3.critter.user.Employee;
+import com.udacity.jdnd.course3.critter.user.EmployeeRequest;
+import com.udacity.jdnd.course3.critter.user.EmployeeSkill;
+import com.udacity.jdnd.course3.critter.user.UserController;
+
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.time.DayOfWeek;
-import java.time.LocalDate;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 /**
  * This is a set of functional tests to validate the basic capabilities desired for this application.
@@ -112,19 +115,19 @@ public class CritterFunctionalTestJsonView {
         Assertions.assertEquals(pets.get(0).getId(), newPet.getId());
     }
 
-    // @Test
-    // public void testFindOwnerByPet() {
-    //     Customer customer = createCustomer();
-    //     Customer newCustomer = userController.saveCustomer(customer);
+    @Test
+    public void testFindOwnerByPet() {
+        Customer customer = createCustomer();
+        Customer newCustomer = userController.saveCustomer(customer);
 
-    //     Pet pet = createPet();
-    //     pet.setOwnerId(newCustomer.getId());
-    //     Pet newPet = petController.savePet(pet);
+        Pet pet = createPet();
+        pet.setOwner(newCustomer);
+        Pet newPet = petController.savePet(pet);
 
-    //     Customer owner = userController.getOwnerByPet(newPet.getId());
-    //     Assertions.assertEquals(owner.getId(), newCustomer.getId());
-    //     Assertions.assertEquals(owner.getPetIds().get(0), newPet.getId());
-    // }
+        Customer owner = userController.getOwnerByPet(newPet.getId());
+        Assertions.assertEquals(owner.getId(), newCustomer.getId());
+        Assertions.assertTrue(owner.getPets().contains(newPet));
+    }
 
     @Test
     public void testChangeEmployeeAvailability() {
@@ -283,23 +286,23 @@ public class CritterFunctionalTestJsonView {
         return schedule;
     }
 
-    // private Schedule populateSchedule(int numEmployees, int numPets, LocalDate date, Set<EmployeeSkill> activities) {
-    //     List<Long> employeeIds = IntStream.range(0, numEmployees)
-    //             .mapToObj(i -> createEmployee())
-    //             .map(e -> {
-    //                 e.setSkills(activities);
-    //                 e.setDaysAvailable(Sets.newHashSet(date.getDayOfWeek()));
-    //                 return userController.saveEmployee(e).getId();
-    //             }).collect(Collectors.toList());
-    //     Customer cust = userController.saveCustomer(createCustomer());
-    //     List<Long> petIds = IntStream.range(0, numPets)
-    //             .mapToObj(i -> createPet())
-    //             .map(p -> {
-    //                 p.setOwnerId(cust.getId());
-    //                 return petController.savePet(p).getId();
-    //             }).collect(Collectors.toList());
-    //     return scheduleController.createSchedule(createSchedule(pets, employees, date, activities));
-    // }
+    private Schedule populateSchedule(int numEmployees, int numPets, LocalDate date, Set<EmployeeSkill> activities) {
+        Set<Employee> employees = IntStream.range(0, numEmployees)
+                .mapToObj(i -> createEmployee())
+                .map(e -> {
+                    e.setSkills(activities);
+                    e.setDaysAvailable(Sets.newHashSet(date.getDayOfWeek()));
+                    return userController.saveEmployee(e);
+                }).collect(Collectors.toSet());
+        Customer cust = userController.saveCustomer(createCustomer());
+        Set<Pet> pets = IntStream.range(0, numPets)
+                .mapToObj(i -> createPet())
+                .map(p -> {
+                    p.setOwner(cust);
+                    return petController.savePet(p);
+                }).collect(Collectors.toSet());
+        return scheduleController.createSchedule(createSchedule(pets, employees, date, activities));
+    }
 
     private static void compareSchedules(Schedule sched1, Schedule sched2) {
         Assertions.assertEquals(sched1.getPets(), sched2.getPets());

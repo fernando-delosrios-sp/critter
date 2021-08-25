@@ -2,7 +2,9 @@ package com.udacity.jdnd.course3.critter.pet;
 
 import java.time.LocalDate;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
@@ -31,7 +33,7 @@ public @Data class Pet {
     @EqualsAndHashCode.Include
     private String name;
 
-    @ManyToOne
+    @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @EqualsAndHashCode.Include
     private Customer owner;
 

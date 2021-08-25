@@ -40,7 +40,7 @@ public class UserController {
 
     @GetMapping("/customer/pet/{petId}")
     public Customer getOwnerByPet(@PathVariable long petId){
-        throw new UnsupportedOperationException();
+        return customerRepository.findOwnerByPet(petId);
     }
 
     @PostMapping("/employee")
@@ -50,16 +50,13 @@ public class UserController {
 
     @PostMapping("/employee/{employeeId}")
     public Employee getEmployee(@PathVariable long employeeId) {
-        Optional<Employee> result = employeeRepository.findById(employeeId);
-        if(result.isPresent()) {
-            
-        }
-        return result.get();
+        return employeeRepository.findById(employeeId).get();
     }
 
     @PutMapping("/employee/{employeeId}")
     public void setAvailability(@RequestBody Set<DayOfWeek> daysAvailable, @PathVariable long employeeId) {
-        throw new UnsupportedOperationException();
+        Employee employee = employeeRepository.findById(employeeId).get();
+        employee.setDaysAvailable(daysAvailable);
     }
 
     @GetMapping("/employee/availability")
