@@ -35,4 +35,9 @@ public class PetController {
     public List<Pet> getPetsByOwner(@PathVariable long ownerId) {
         return petService.getPetsByOwnerId(ownerId);
     }
+
+    @PutMapping("/{petId}/owner/{ownerId}")
+    public void setPetToOwner(@PathVariable long petId, @PathVariable long ownerId){
+        petService.setOwner(petId, ownerId);
+    }
 }

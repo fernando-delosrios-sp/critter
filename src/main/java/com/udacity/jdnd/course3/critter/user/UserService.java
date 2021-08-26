@@ -2,8 +2,12 @@ package com.udacity.jdnd.course3.critter.user;
 
 import java.time.DayOfWeek;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+
+import com.udacity.jdnd.course3.critter.pet.Pet;
+import com.udacity.jdnd.course3.critter.pet.PetRepository;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -17,6 +21,9 @@ public class UserService {
 
     @Autowired
     EmployeeRepository employeeRepository;
+
+    @Autowired
+    PetRepository petRepository;
 
     public Customer saveCustomer(Customer customer) {
         return customerRepository.save(customer);

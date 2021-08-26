@@ -213,8 +213,8 @@ public class CritterFunctionalTest {
 
         //add a third schedule that shares some employees and pets with the other schedules
         Schedule sched3 = new Schedule();
-        sched3.setEmployees(sched1.getEmployees());
-        sched3.setPets(sched2.getPets());
+        sched3.setEmployees(Sets.newHashSet(sched1.getEmployees()));
+        sched3.setPets(Sets.newHashSet(sched2.getPets()));
         sched3.setActivities(Sets.newHashSet(EmployeeSkill.SHAVING, EmployeeSkill.PETTING));
         sched3.setDate(LocalDate.of(2020, 3, 23));
         scheduleController.createSchedule(sched3);

@@ -1,6 +1,7 @@
 package com.udacity.jdnd.course3.critter.pet;
 
 import java.util.List;
+import java.util.Optional;
 
 import com.udacity.jdnd.course3.critter.user.Customer;
 import com.udacity.jdnd.course3.critter.user.CustomerRepository;
@@ -41,4 +42,14 @@ public class PetService {
         return petRepository.findAll();
     }
     
+    public void setOwner(long petId, long customerId) {
+        Optional<Customer> customer = customerRepository.findById(customerId);
+        if (customer.isPresent()) {
+            Optional<Pet> pet = petRepository.findById(petId);
+            if (pet.isPresent()) {
+                pet.get().setOwner(customer.get());;
+                savePet(pet.get());
+            }
+        }
+    }
 }
