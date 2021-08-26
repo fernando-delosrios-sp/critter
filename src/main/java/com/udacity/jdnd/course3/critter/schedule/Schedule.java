@@ -1,6 +1,7 @@
 package com.udacity.jdnd.course3.critter.schedule;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -14,11 +15,12 @@ import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 
+import com.fasterxml.jackson.annotation.JsonIdentityReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonView;
 import com.udacity.jdnd.course3.critter.pet.Pet;
 import com.udacity.jdnd.course3.critter.user.Employee;
 import com.udacity.jdnd.course3.critter.user.EmployeeSkill;
-import com.udacity.jdnd.course3.critter.view.Views;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -43,12 +45,8 @@ public @Data class Schedule {
       inverseJoinColumns = { @JoinColumn(name = "employee_id")}
     )
     @EqualsAndHashCode.Include
+    @JsonIdentityReference(alwaysAsId = true)
     private Set<Employee> employees;
-
-    @JsonView(Views.Public.class)
-    public List<Long> getEmployeeIds() {
-      return this.getEmployees().stream().map(Employee::getId).collect(Collectors.toList());
-    }
 
     @ManyToMany
     @JoinTable(
@@ -57,20 +55,14 @@ public @Data class Schedule {
       inverseJoinColumns = { @JoinColumn(name = "pet_id")}
     )
     @EqualsAndHashCode.Include
+    @JsonIdentityReference(alwaysAsId = true)
     private Set<Pet> pets;
 
-    @JsonView(Views.Public.class)
-    public List<Long> getPetsIds() {
-      return this.getPets().stream().map(Pet::getId).collect(Collectors.toList());
-    }
-
-    @JsonView(Views.Public.class)
     @EqualsAndHashCode.Include
     private LocalDate date;
 
     @ElementCollection
     @Column(name = "activity")
-    @JsonView(Views.Public.class)
     @EqualsAndHashCode.Include
     private Set<EmployeeSkill> activities;
 }

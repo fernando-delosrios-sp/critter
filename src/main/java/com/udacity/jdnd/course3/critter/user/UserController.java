@@ -23,45 +23,40 @@ import java.util.Optional;
 @RequestMapping("/user")
 public class UserController {
     @Autowired
-    private EmployeeRepository employeeRepository;
-
-    @Autowired
-    private CustomerRepository customerRepository;
+    private UserService userService;
 
     @PostMapping("/customer")
     public Customer saveCustomer(@RequestBody Customer customer){
-        return customerRepository.save(customer);
+        return userService.saveCustomer(customer);
     }
 
     @GetMapping("/customer")
     public List<Customer> getAllCustomers(){
-        return customerRepository.findAll();
+        return userService.getAllCustomers();        
     }
 
     @GetMapping("/customer/pet/{petId}")
     public Customer getOwnerByPet(@PathVariable long petId){
-        return customerRepository.findOwnerByPet(petId);
+        return userService.getOwnerByPetId(petId);
     }
 
     @PostMapping("/employee")
     public Employee saveEmployee(@RequestBody Employee employee) {
-        return employeeRepository.save(employee);
+        return userService.saveEmployee(employee);
     }
 
-    @PostMapping("/employee/{employeeId}")
+    @GetMapping("/employee/{employeeId}")
     public Employee getEmployee(@PathVariable long employeeId) {
-        return employeeRepository.findById(employeeId).get();
+        return userService.getEmployeeById(employeeId);
     }
 
     @PutMapping("/employee/{employeeId}")
     public void setAvailability(@RequestBody Set<DayOfWeek> daysAvailable, @PathVariable long employeeId) {
-        Employee employee = employeeRepository.findById(employeeId).get();
-        employee.setDaysAvailable(daysAvailable);
+        userService.setAvailability(daysAvailable, employeeId);
     }
 
-    @GetMapping("/employee/availability")
+    @PostMapping("/employee/availability")
     public List<Employee> findEmployeesForService(@RequestBody EmployeeRequest employee) {
-        throw new UnsupportedOperationException();
+        return userService.findEmployeesForService(employee);
     }
-
 }

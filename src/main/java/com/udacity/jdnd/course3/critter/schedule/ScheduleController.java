@@ -1,5 +1,6 @@
 package com.udacity.jdnd.course3.critter.schedule;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -10,29 +11,31 @@ import java.util.List;
 @RestController
 @RequestMapping("/schedule")
 public class ScheduleController {
+    @Autowired
+    private ScheduleService scheduleService;
 
     @PostMapping
     public Schedule createSchedule(@RequestBody Schedule schedule) {
-        throw new UnsupportedOperationException();
+        return scheduleService.saveSchedule(schedule);
     }
 
     @GetMapping
     public List<Schedule> getAllSchedules() {
-        throw new UnsupportedOperationException();
+        return scheduleService.getAllSchedules();
     }
 
     @GetMapping("/pet/{petId}")
     public List<Schedule> getScheduleForPet(@PathVariable long petId) {
-        throw new UnsupportedOperationException();
+        return scheduleService.getScheduleForPetId(petId);
     }
 
     @GetMapping("/employee/{employeeId}")
     public List<Schedule> getScheduleForEmployee(@PathVariable long employeeId) {
-        throw new UnsupportedOperationException();
+        return scheduleService.getScheduleForEmployeeId(employeeId);
     }
 
     @GetMapping("/customer/{customerId}")
     public List<Schedule> getScheduleForCustomer(@PathVariable long customerId) {
-        throw new UnsupportedOperationException();
+        return scheduleService.getScheduleForCustomerId(customerId);
     }
 }

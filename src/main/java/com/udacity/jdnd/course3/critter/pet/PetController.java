@@ -13,26 +13,26 @@ import java.util.List;
 @RequestMapping("/pet")
 public class PetController {
     @Autowired
-    private PetRepository petRepository;
+    private PetService petService;
 
     @PostMapping
     @Transactional
     public Pet savePet(@RequestBody Pet pet) {
-        return petRepository.save(pet);
+        return petService.savePet(pet);
     }
 
     @GetMapping("/{petId}")
     public Pet getPet(@PathVariable long petId) {
-        return petRepository.findById(petId).get();
+        return petService.getPetById(petId);
     }
 
     @GetMapping
     public List<Pet> getPets(){
-        throw new UnsupportedOperationException();
+        return petService.getPets();
     }
 
     @GetMapping("/owner/{ownerId}")
     public List<Pet> getPetsByOwner(@PathVariable long ownerId) {
-        return petRepository.findByOwner_Id(ownerId);
+        return petService.getPetsByOwnerId(ownerId);
     }
 }

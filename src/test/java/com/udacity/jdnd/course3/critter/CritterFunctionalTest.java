@@ -7,6 +7,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Sets;
 import com.udacity.jdnd.course3.critter.pet.Pet;
 import com.udacity.jdnd.course3.critter.pet.PetController;
@@ -37,7 +38,7 @@ import org.springframework.transaction.annotation.Transactional;
 @EnableJpaAuditing
 @Transactional
 @SpringBootTest(classes = CritterApplication.class)
-public class CritterFunctionalTestJsonView {
+public class CritterFunctionalTest {
 
     @Autowired
     private UserController userController;
@@ -48,6 +49,10 @@ public class CritterFunctionalTestJsonView {
     @Autowired
     private ScheduleController scheduleController;
 
+    //Used to debug object serialisation online
+    @Autowired
+    private ObjectMapper mapper;
+
     @Test
     public void testCreateCustomer(){
         Customer customer = createCustomer();
@@ -55,7 +60,7 @@ public class CritterFunctionalTestJsonView {
         Customer retrievedCustomer = userController.getAllCustomers().get(0);
         Assertions.assertEquals(newCustomer, customer);
         Assertions.assertEquals(newCustomer.getId(), retrievedCustomer.getId());
-        Assertions.assertTrue(retrievedCustomer.getId() > 0);
+        Assertions.assertTrue(retrievedCustomer.getId() > 0);        
     }
 
     @Test
@@ -80,7 +85,7 @@ public class CritterFunctionalTestJsonView {
         //make sure pet contains customer id
         Pet retrievedPet = petController.getPet(newPet.getId());
         Assertions.assertEquals(retrievedPet.getId(), newPet.getId());
-        Assertions.assertEquals(retrievedPet.getOwnerId(), newCustomer.getId());
+        Assertions.assertEquals(retrievedPet.getOwner().getId(), newCustomer.getId());
 
         //make sure you can retrieve pets by owner
         List<Pet> pets = petController.getPetsByOwner(newCustomer.getId());
@@ -111,7 +116,7 @@ public class CritterFunctionalTestJsonView {
 
         List<Pet> pets = petController.getPetsByOwner(newCustomer.getId());
         Assertions.assertEquals(pets.size(), 2);
-        Assertions.assertEquals(pets.get(0).getOwnerId(), newCustomer.getId());
+        Assertions.assertEquals(pets.get(0).getOwner().getId(), newCustomer.getId());
         Assertions.assertEquals(pets.get(0).getId(), newPet.getId());
     }
 
@@ -179,76 +184,76 @@ public class CritterFunctionalTestJsonView {
         Assertions.assertEquals(eIds2, eIds2expected);
     }
 
-    // @Test
-    // public void testSchedulePetsForServiceWithEmployee() {
-    //     Employee employeeTemp = createEmployee();
-    //     employeeTemp.setDaysAvailable(Sets.newHashSet(DayOfWeek.MONDAY, DayOfWeek.TUESDAY, DayOfWeek.WEDNESDAY));
-    //     Employee employee = userController.saveEmployee(employeeTemp);
-    //     Customer customer = userController.saveCustomer(createCustomer());
-    //     Pet petTemp = createPet();
-    //     petTemp.setOwner(customer);
-    //     Pet pet = petController.savePet(petTemp);
+    @Test
+    public void testSchedulePetsForServiceWithEmployee() {
+        Employee employeeTemp = createEmployee();
+        employeeTemp.setDaysAvailable(Sets.newHashSet(DayOfWeek.MONDAY, DayOfWeek.TUESDAY, DayOfWeek.WEDNESDAY));
+        Employee employee = userController.saveEmployee(employeeTemp);
+        Customer customer = userController.saveCustomer(createCustomer());
+        Pet petTemp = createPet();
+        petTemp.setOwner(customer);
+        Pet pet = petController.savePet(petTemp);
 
-    //     LocalDate date = LocalDate.of(2019, 12, 25);
-    //     List<Long> petList = Lists.newArrayList(pet.getId());
-    //     List<Long> employeeList = Lists.newArrayList(employee.getId());
-    //     Set<EmployeeSkill> skillSet =  Sets.newHashSet(EmployeeSkill.PETTING);
+        LocalDate date = LocalDate.of(2019, 12, 25);
+        Set<Pet> pets = Sets.newHashSet(pet);
+        Set<Employee> employees = Sets.newHashSet(employee);
+        Set<EmployeeSkill> skillSet =  Sets.newHashSet(EmployeeSkill.PETTING);
 
-    //     scheduleController.createSchedule(createSchedule(petList, employeeList, date, skillSet));
-    //     Schedule schedule = scheduleController.getAllSchedules().get(0);
+        scheduleController.createSchedule(createSchedule(pets, employees, date, skillSet));
+        Schedule schedule = scheduleController.getAllSchedules().get(0);
 
-    //     Assertions.assertEquals(schedule.getActivities(), skillSet);
-    //     Assertions.assertEquals(schedule.getDate(), date);
-    //     Assertions.assertEquals(schedule.getEmployees(), employeeList);
-    //     Assertions.assertEquals(schedule.getPets(), petList);
-    // }
+        Assertions.assertEquals(schedule.getActivities(), skillSet);
+        Assertions.assertEquals(schedule.getDate(), date);
+        Assertions.assertEquals(schedule.getEmployees(), employees);
+        Assertions.assertEquals(schedule.getPets(), pets);
+    }
 
-    // @Test
-    // public void testFindScheduleByEntities() {
-    //     Schedule sched1 = populateSchedule(1, 2, LocalDate.of(2019, 12, 25), Sets.newHashSet(EmployeeSkill.FEEDING, EmployeeSkill.WALKING));
-    //     Schedule sched2 = populateSchedule(3, 1, LocalDate.of(2019, 12, 26), Sets.newHashSet(EmployeeSkill.PETTING));
+    @Test
+    public void testFindScheduleByEntities() {
+        Schedule sched1 = populateSchedule(1, 2, LocalDate.of(2019, 12, 25), Sets.newHashSet(EmployeeSkill.FEEDING, EmployeeSkill.WALKING));
+        Schedule sched2 = populateSchedule(3, 1, LocalDate.of(2019, 12, 26), Sets.newHashSet(EmployeeSkill.PETTING));
 
-    //     //add a third schedule that shares some employees and pets with the other schedules
-    //     Schedule sched3 = new Schedule();
-    //     sched3.setEmployees(sched1.getEmployees());
-    //     sched3.setPets(sched2.getPets());
-    //     sched3.setActivities(Sets.newHashSet(EmployeeSkill.SHAVING, EmployeeSkill.PETTING));
-    //     sched3.setDate(LocalDate.of(2020, 3, 23));
-    //     scheduleController.createSchedule(sched3);
+        //add a third schedule that shares some employees and pets with the other schedules
+        Schedule sched3 = new Schedule();
+        sched3.setEmployees(sched1.getEmployees());
+        sched3.setPets(sched2.getPets());
+        sched3.setActivities(Sets.newHashSet(EmployeeSkill.SHAVING, EmployeeSkill.PETTING));
+        sched3.setDate(LocalDate.of(2020, 3, 23));
+        scheduleController.createSchedule(sched3);
 
-    //     /*
-    //         We now have 3 schedule entries. The third schedule entry has the same employees as the 1st schedule
-    //         and the same pets/owners as the second schedule. So if we look up schedule entries for the employee from
-    //         schedule 1, we should get both the first and third schedule as our result.
-    //      */
+        /*
+            We now have 3 schedule entries. The third schedule entry has the same employees as the 1st schedule
+            and the same pets/owners as the second schedule. So if we look up schedule entries for the employee from
+            schedule 1, we should get both the first and third schedule as our result.
+         */
 
-    //     //Employee 1 in is both schedule 1 and 3
-    //     List<Schedule> scheds1e = scheduleController.getScheduleForEmployee(sched1.getEmployeeIds().get(0));
-    //     compareSchedules(sched1, scheds1e.get(0));
-    //     compareSchedules(sched3, scheds1e.get(1));
+        //Employee 1 in is both schedule 1 and 3
+        List<Schedule> scheds1e = scheduleController.getScheduleForEmployee(sched1.getEmployees().iterator().next().getId());
+        compareSchedules(sched1, scheds1e.get(0));
+        compareSchedules(sched3, scheds1e.get(1));
 
-    //     //Employee 2 is only in schedule 2
-    //     List<Schedule> scheds2e = scheduleController.getScheduleForEmployee(sched2.getEmployeeIds().get(0));
-    //     compareSchedules(sched2, scheds2e.get(0));
+        //Employee 2 is only in schedule 2
+        List<Schedule> scheds2e = scheduleController.getScheduleForEmployee(sched2.getEmployees().iterator().next().getId());
+        compareSchedules(sched2, scheds2e.get(0));
 
-    //     //Pet 1 is only in schedule 1
-    //     List<Schedule> scheds1p = scheduleController.getScheduleForPet(sched1.getPetIds().get(0));
-    //     compareSchedules(sched1, scheds1p.get(0));
+        //Pet 1 is only in schedule 1
+        List<Schedule> scheds1p = scheduleController.getScheduleForPet(sched1.getPets().iterator().next().getId());
+        compareSchedules(sched1, scheds1p.get(0));
 
-    //     //Pet from schedule 2 is in both schedules 2 and 3
-    //     List<Schedule> scheds2p = scheduleController.getScheduleForPet(sched2.getPetIds().get(0));
-    //     compareSchedules(sched2, scheds2p.get(0));
-    //     compareSchedules(sched3, scheds2p.get(1));
+        //Pet from schedule 2 is in both schedules 2 and 3
+        List<Schedule> scheds2p = scheduleController.getScheduleForPet(sched2.getPets().iterator().next().getId());
+        compareSchedules(sched2, scheds2p.get(0));
+        compareSchedules(sched3, scheds2p.get(1));
 
-    //     //Owner of the first pet will only be in schedule 1
-    //     List<Schedule> scheds1c = scheduleController.getScheduleForCustomer(userController.getOwnerByPet(sched1.getPetIds().get(0)).getId());
-    //     compareSchedules(sched1, scheds1c.get(0));
+        //Owner of the first pet will only be in schedule 1
+        List<Schedule> scheds1c = scheduleController.getScheduleForCustomer((userController.getOwnerByPet(sched1.getPets().iterator().next().getId())).getId());
+        compareSchedules(sched1, scheds1c.get(0));
 
-    //     //Owner of pet from schedule 2 will be in both schedules 2 and 3
-    //     List<Schedule> scheds2c = scheduleController.getScheduleForCustomer(userController.getOwnerByPet(sched2.getPetIds().get(0)).getId());
-    //     compareSchedules(sched2, scheds2c.get(0));
-    //     compareSchedules(sched3, scheds2c.get(1));
-    // }
+        //Owner of pet from schedule 2 will be in both schedules 2 and 3
+        List<Schedule> scheds2c = scheduleController.getScheduleForCustomer((userController.getOwnerByPet(sched2.getPets().iterator().next().getId()).getId()));
+        compareSchedules(sched2, scheds2c.get(0));
+        compareSchedules(sched3, scheds2c.get(1));
+    }
 
     private static Employee createEmployee() {
         Employee employee = new Employee();
@@ -270,12 +275,12 @@ public class CritterFunctionalTestJsonView {
         return pet;
     }
 
-    private static EmployeeRequest createEmployeeRequest() {
-        EmployeeRequest employeeRequest = new EmployeeRequest();
-        employeeRequest.setDate(LocalDate.of(2019, 12, 25));
-        employeeRequest.setSkills(Sets.newHashSet(EmployeeSkill.FEEDING, EmployeeSkill.WALKING));
-        return employeeRequest;
-    }
+    // private static EmployeeRequest createEmployeeRequest() {
+    //     EmployeeRequest employeeRequest = new EmployeeRequest();
+    //     employeeRequest.setDate(LocalDate.of(2019, 12, 25));
+    //     employeeRequest.setSkills(Sets.newHashSet(EmployeeSkill.FEEDING, EmployeeSkill.WALKING));
+    //     return employeeRequest;
+    // }
 
     private static Schedule createSchedule(Set<Pet> pets, Set<Employee> employees, LocalDate date, Set<EmployeeSkill> activities) {
         Schedule schedule = new Schedule();
@@ -307,7 +312,7 @@ public class CritterFunctionalTestJsonView {
     private static void compareSchedules(Schedule sched1, Schedule sched2) {
         Assertions.assertEquals(sched1.getPets(), sched2.getPets());
         Assertions.assertEquals(sched1.getActivities(), sched2.getActivities());
-        Assertions.assertEquals(sched1.getEmployeeIds(), sched2.getEmployeeIds());
+        Assertions.assertEquals(sched1.getEmployees().iterator().next().getId(), sched2.getEmployees().iterator().next().getId());
         Assertions.assertEquals(sched1.getDate(), sched2.getDate());
     }
 

@@ -6,35 +6,38 @@ import java.util.Set;
 import javax.persistence.Column;
 import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 
-import com.fasterxml.jackson.annotation.JsonView;
-import com.udacity.jdnd.course3.critter.view.Views;
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 @Entity
+@JsonInclude(JsonInclude.Include.NON_NULL)
+@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
+//@JsonInclude(JsonInclude.Include.NON_NULL)
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public @Data class Employee {
     @Id
     @GeneratedValue
-    @JsonView(Views.Public.class)
     private long id;
 
-    @JsonView(Views.Public.class)
     @EqualsAndHashCode.Include
     private String name;
 
     @ElementCollection
     @Column(name = "skill")
-    @JsonView(Views.Public.class)
-    @EqualsAndHashCode.Include
+    @Enumerated(EnumType.STRING)
     private Set<EmployeeSkill> skills;
 
     @ElementCollection
     @Column(name = "day")
-    @JsonView(Views.Public.class)
+    @Enumerated(EnumType.STRING)
     private Set<DayOfWeek> daysAvailable;
 }
