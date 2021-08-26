@@ -112,8 +112,6 @@ public class CritterFunctionalTest {
         //Setting owner for the default assertion to work
         pet.setOwner(newCustomer);
         pet.setName("DogName");
-        Pet newPet2 = petController.savePet(pet);
-
         List<Pet> pets = petController.getPetsByOwner(newCustomer.getId());
         Assertions.assertEquals(pets.size(), 2);
         Assertions.assertEquals(pets.get(0).getOwner().getId(), newCustomer.getId());

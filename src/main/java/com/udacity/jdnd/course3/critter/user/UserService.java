@@ -1,7 +1,6 @@
 package com.udacity.jdnd.course3.critter.user;
 
 import java.time.DayOfWeek;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
